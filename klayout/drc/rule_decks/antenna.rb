@@ -317,8 +317,9 @@ GF180_DRC_REGISTRY.register(
   # MIM A is between Metal2 and Metal3
   connect(via2, fusetop) if ctx.mim_option == 'A'
 
-  # MIM B is between TopMetal-1 and TopMetal
-  connect(via3, fusetop) if ctx.mim_option == 'B'
+  # MIM B is between TopMetal-1 and TopMetal, so Via3 reaches it on four
+  # metals alone
+  connect(via3, fusetop) if ctx.mim_option == 'B' && ctx.metal_level_numerical == 4
 
   logger.info('Executing rule ANT.16_i_ANT.11')
   antenna_check_gf180mcu_area(nom_gate, via3, 20, comp_con, 2)
@@ -368,8 +369,9 @@ GF180_DRC_REGISTRY.register(
   # MIM A is between Metal2 and Metal3
   connect(via2, fusetop) if ctx.mim_option == 'A'
 
-  # MIM B is between TopMetal-1 and TopMetal
-  connect(via3, fusetop) if ctx.mim_option == 'B'
+  # MIM B is between TopMetal-1 and TopMetal, so Via3 reaches it on four
+  # metals alone
+  connect(via3, fusetop) if ctx.mim_option == 'B' && ctx.metal_level_numerical == 4
 
   # Is this the topmost metal layer?
   met_thick = ctx.metal_level_numerical == 4 ? metal_top_thickness : 0.54
