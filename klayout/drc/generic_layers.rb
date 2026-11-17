@@ -167,6 +167,7 @@ module GF180DRC
       { name: :pcomp,           calc: ->(ctx) { ctx[:comp].and(ctx[:pplus]) } },
       { name: :ncomp_con,       calc: ->(ctx) { ctx[:ncomp].not(ctx[:poly2_drawn]) } },
       { name: :pcomp_con,       calc: ->(ctx) { ctx[:pcomp].not(ctx[:poly2_drawn]) } },
+      { name: :comp_con,        calc: ->(ctx) { ctx[:comp].not(ctx[:poly2_drawn]) } },
       { name: :tgate,           calc: ->(ctx) { ctx[:poly2_drawn].and(ctx[:comp]).not(ctx[:res_mk]) } },
 
       # --- N-Device Logic ---
