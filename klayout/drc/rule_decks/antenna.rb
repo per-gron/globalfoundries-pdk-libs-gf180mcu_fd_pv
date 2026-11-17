@@ -420,25 +420,30 @@ GF180_DRC_REGISTRY.register(
   connect(via2, metal3_drawn)
   connect(metal3_drawn, via3)
   connect(via3, metal4_drawn)
-  connect(metal4_drawn, via4)
 
   # MIM A is between Metal2 and Metal3
   connect(via2, fusetop) if ctx.mim_option == 'A'
 
-  # MIM B is between TopMetal-1 and TopMetal
-  connect(via4, fusetop) if ctx.mim_option == 'B'
+  # MIM B is between TopMetal-1 and TopMetal. On five metals a Via4 on
+  # FuseTop lands on the top plate and the others on Metal4, the bottom
+  # plate, as the LVS deck splits Via4 (general_derivations.lvs).
+  mimb_top = ctx.mim_option == 'B' && ctx.metal_level_numerical == 5
+  via4_n_cap = mimb_top ? via4.not(fusetop) : via4
+  via4_cap = mimb_top ? via4.and(fusetop) : via4
+  connect(metal4_drawn, via4_n_cap)
+  connect(via4_cap, fusetop) if ctx.mim_option == 'B'
 
   logger.info('Executing rule ANT.16_i_ANT.12')
-  antenna_check_gf180mcu_area(nom_gate, via4, 20, comp_con, 2)
+  antenna_check_gf180mcu_area(nom_gate, via4_n_cap, 20, comp_con, 2)
     .output('ANT.16_i_ANT.12',
             'ANT.16_i_ANT.12: Maximum ratio of Via4 area to related thin gate oxide area: 20')
   logger.info('Executing rule ANT.16_ii_ANT.12')
-  antenna_check_gf180mcu_area(thick_gate, via4, 20, comp_con, 15)
+  antenna_check_gf180mcu_area(thick_gate, via4_n_cap, 20, comp_con, 15)
     .output('ANT.16_ii_ANT.12',
             'ANT.16_ii_ANT.12: Maximum ratio of Via4 area to related thick gate oxide area: 20')
   if %w[A B].include? ctx.mim_option
     logger.info("Executing rule ANT.16_iii_ANT.15_V4_MIM#{ctx.mim_option}")
-    antenna_check_gf180mcu_area(fusetop, via4, 20, comp_con, 15)
+    antenna_check_gf180mcu_area(fusetop, via4_cap, 20, comp_con, 15)
       .output("ANT.16_iii_ANT.15_V4_MIM#{ctx.mim_option}",
               "ANT.16_iii_ANT.15_V4_MIM#{ctx.mim_option}: Maximum ratio of Via4 area to related MIM area is 20")
   end
@@ -472,14 +477,20 @@ GF180_DRC_REGISTRY.register(
   connect(via2, metal3_drawn)
   connect(metal3_drawn, via3)
   connect(via3, metal4_drawn)
-  connect(metal4_drawn, via4)
-  connect(via4, metal5_drawn)
 
   # MIM A is between Metal2 and Metal3
   connect(via2, fusetop) if ctx.mim_option == 'A'
 
-  # MIM B is between TopMetal-1 and TopMetal
-  connect(via4, fusetop) if ctx.mim_option == 'B'
+  # MIM B is between TopMetal-1 and TopMetal. On five metals a Via4 on
+  # FuseTop lands on the top plate and the others on Metal4, the bottom
+  # plate, as the LVS deck splits Via4 (general_derivations.lvs).
+  mimb_top = ctx.mim_option == 'B' && ctx.metal_level_numerical == 5
+  via4_n_cap = mimb_top ? via4.not(fusetop) : via4
+  via4_cap = mimb_top ? via4.and(fusetop) : via4
+  connect(metal4_drawn, via4_n_cap)
+  connect(via4_n_cap, metal5_drawn)
+  connect(via4_cap, metal5_drawn) if mimb_top
+  connect(via4_cap, fusetop) if ctx.mim_option == 'B'
 
   # Is this the topmost metal layer?
   met_thick = ctx.metal_level_numerical == 5 ? metal_top_thickness : 0.54
